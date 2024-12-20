@@ -166,7 +166,8 @@ bool SimpleEQAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* SimpleEQAudioProcessor::createEditor()
 {
-    return new SimpleEQAudioProcessorEditor (*this);
+    /*return new SimpleEQAudioProcessorEditor (*this);*/
+    return new juce::GenericAudioProcessorEditor(this);
 }
 
 //==============================================================================
@@ -182,6 +183,54 @@ void SimpleEQAudioProcessor::setStateInformation (const void* data, int sizeInBy
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
 }
+
+juce::AudioProcessorValueTreeState::ParameterLayout SimpleEQAudioProcessor::createParameterLayout() {
+    juce::AudioProcessorValueTreeState::ParameterLayout layout;
+
+    // Corrected constructor for AudioParameterFloat
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
+        "LowCut Freq",                       // Parameter ID
+        "LowCut Freq",                       // Parameter Name (what the user sees)
+        juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 1.f),  // Range (min, max, interval, skew factor)
+        20.f                                  // Default value
+    ));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
+        "HighCut Freq",                       // Parameter ID
+        "HighCut Freq",                       // Parameter Name (what the user sees)
+        juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 1.f),  // Range (min, max, interval, skew factor)
+        20000.f                                  // Default value
+    ));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
+        "Peak Freq",                       // Parameter ID
+        "Peak Freq",                       // Parameter Name (what the user sees)
+        juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 1.f),  // Range (min, max, interval, skew factor)
+        750.f                                  // Default value
+    ));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
+        "Peak Gain",                       // Parameter ID
+        "Peak Gain",                       // Parameter Name (what the user sees)
+        juce::NormalisableRange<float>(-24.f, 24.f, 1.f, 1.f),  // Range (min, max, interval, skew factor)
+        0.f                                  // Default value
+    ));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
+        "Peak Quality",                       // Parameter ID
+        "Peak Quality",                       // Parameter Name (what the user sees)
+        juce::NormalisableRange<float>(0.1f, 10.f, 0.05f, 1.f),  // Range (min, max, interval, skew factor)
+        0.f                                  // Default value
+    ));
+
+    // Added return for the layout
+    auto filterSlopeChoice = std::make_unique<juce::AudioParameterChoice>("SlopeChoice", "SlopeChoice", juce::StringArray("12 db/oct", "24 db/oct", "36 db/oct", "48 db/oct"), 0);
+    layout.add(std::move(filterSlopeChoice));
+
+    return layout;  // Added return statement
+}
+
+
 
 //==============================================================================
 // This creates new instances of the plugin..
